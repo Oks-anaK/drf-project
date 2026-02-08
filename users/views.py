@@ -11,6 +11,6 @@ class PaymentViewSet(ModelViewSet):
 
     # Добавить фильтры
     filter_backends = [DjangoFilterBackend, OrderingFilter]
-    filterset_fields = ['course', 'lesson', 'payment_method']
-    ordering_fields = ['date_payment']
-    ordering = ['-date_payment']  # По умолчанию сортировка по дате (новые сначала)
+    filterset_fields = ('course', 'lesson', 'payment_method')
+    ordering_fields = ('date_payment')
+    ordering = ('-date_payment')  # По умолчанию сортировка по дате (новые сначала)

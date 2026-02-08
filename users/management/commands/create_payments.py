@@ -47,7 +47,7 @@ class Command(BaseCommand):
         # Создаем платежи за уроки
         if lessons.exists():
             days = 0  # Начинаем с сегодня
-            for lesson in lessons[:3]:
+            for lesson in lessons[:4]:
                 payment_date = timezone.now().date() - timedelta(days=days)
                 Payments.objects.update_or_create(
                     user=user,
