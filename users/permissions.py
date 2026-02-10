@@ -1,9 +1,11 @@
 from rest_framework import permissions
 
+
 class IsModerator(permissions.BasePermission):
     """
-        Проверяет, является ли пользователь модератором.
+    Проверяет, является ли пользователь модератором.
     """
+
     message = "Вы модератор"
 
     def has_permission(self, request, view):
