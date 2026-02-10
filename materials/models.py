@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import CharField, ImageField, TextField
 
+from users.models import User
+
 
 class Course(models.Model):
     name = CharField(
@@ -20,6 +22,14 @@ class Course(models.Model):
         help_text="Добавьте превью курса.",
         blank=True,
         null=True,
+    )
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Владелец",
+        help_text="Добавьте владельца курса.",
     )
 
     def __str__(self):
@@ -57,7 +67,19 @@ class Lesson(models.Model):
         null=True,
     )
     course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, verbose_name="Курс", help_text="Введите курс.", related_name='lessons'
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name="Курс",
+        help_text="Введите курс.",
+        related_name="lessons",
+    )
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Владелец",
+        help_text="Добавьте владельца урока.",
     )
 
     def __str__(self):

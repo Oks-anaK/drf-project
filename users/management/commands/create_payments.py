@@ -1,22 +1,21 @@
+from datetime import timedelta
+from decimal import Decimal
+
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from decimal import Decimal
-from users.models import User, Payments
+
 from materials.models import Course, Lesson
-from datetime import timedelta
+from users.models import Payments, User
 
 
 class Command(BaseCommand):
-    help = 'Создает тестовые платежи'
+    help = "Создает тестовые платежи"
 
     def handle(self, *args, **options):
         # Получаем или создаем пользователя
         user, created = User.objects.get_or_create(
-            email='test@example.com',
-            defaults={
-                'first_name': 'Тест',
-                'last_name': 'Пользователь'
-            }
+            email="test@example.com",
+            defaults={"first_name": "Тест", "last_name": "Пользователь"},
         )
 
         # Получаем курсы и уроки
@@ -24,7 +23,9 @@ class Command(BaseCommand):
         lessons = Lesson.objects.all()
 
         if not courses.exists() and not lessons.exists():
-            self.stdout.write(self.style.WARNING('Нет курсов и уроков для создания платежей'))
+            self.stdout.write(
+                self.style.WARNING("Нет курсов и уроков для создания платежей")
+            )
             return
 
         # Создаем платежи за курсы
@@ -36,13 +37,15 @@ class Command(BaseCommand):
                     user=user,
                     course=course,
                     defaults={
-                        'date_payment': payment_date,
-                        'amount': Decimal('5000.00'),
-                        'payment_method': 'transfer'
-                    }
+                        "date_payment": payment_date,
+                        "amount": Decimal("5000.00"),
+                        "payment_method": "transfer",
+                    },
                 )
                 days += 10  # Следующий платеж на 10 дней раньше
-                self.stdout.write(self.style.SUCCESS(f'Создан платеж за курс: {course.name}'))
+                self.stdout.write(
+                    self.style.SUCCESS(f"Создан платеж за курс: {course.name}")
+                )
 
         # Создаем платежи за уроки
         if lessons.exists():
@@ -53,10 +56,12 @@ class Command(BaseCommand):
                     user=user,
                     lesson=lesson,
                     defaults={
-                        'date_payment': payment_date,
-                        'amount': Decimal('500.00'),
-                        'payment_method': 'cash'
-                    }
+                        "date_payment": payment_date,
+                        "amount": Decimal("500.00"),
+                        "payment_method": "cash",
+                    },
                 )
                 days += 5  # Следующий платеж на 5 дней раньше
-                self.stdout.write(self.style.SUCCESS(f'Создан платеж за урок: {lesson.name}'))
+                self.stdout.write(
+                    self.style.SUCCESS(f"Создан платеж за урок: {lesson.name}")
+                )
