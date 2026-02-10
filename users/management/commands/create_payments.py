@@ -15,8 +15,17 @@ class Command(BaseCommand):
         # Получаем или создаем пользователя
         user, created = User.objects.get_or_create(
             email="test@example.com",
-            defaults={"first_name": "Тест", "last_name": "Пользователь"},
+            defaults={
+                "first_name": "Тест",
+                "last_name": "Пользователь",
+                "is_active": True,  # Убеждаемся, что пользователь активен
+            },
         )
+        # Устанавливаем пароль
+        if created:
+            user.set_password("savepass1")
+            user.is_active = True
+            user.save()
 
         # Получаем курсы и уроки
         courses = Course.objects.all()

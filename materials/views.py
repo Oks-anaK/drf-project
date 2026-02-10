@@ -7,7 +7,7 @@ from rest_framework.viewsets import ModelViewSet
 from materials.models import Course, Lesson
 from materials.serializers import (CourseDetailSerializer, CourseSerializer,
                                    LessonSerializer)
-from users.permissions import IsModerator, IsOwner
+from users.permissions import IsModerator, IsOwner, IsNotModeratorAndOwner
 
 
 class CourseViewSet(ModelViewSet):
@@ -37,7 +37,7 @@ class CourseViewSet(ModelViewSet):
         elif self.action == "create":
             self.permission_classes = (IsAuthenticated, ~IsModerator)
         elif self.action == "destroy":
-            self.permission_classes = (IsAuthenticated, ~IsModerator | IsOwner)
+            self.permission_classes = (IsAuthenticated, IsNotModeratorAndOwner)
         return super().get_permissions()
 
 
@@ -94,4 +94,4 @@ class LessonUpdateAPIView(UpdateAPIView):
 class LessonDestroyAPIView(DestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [IsAuthenticated, ~IsModerator, IsOwner]
+    permission_classes = [IsAuthenticated, IsNotModeratorAndOwner]
