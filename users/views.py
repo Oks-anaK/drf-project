@@ -6,7 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
 from users.models import Payments, User
-from users.permissions import IsOwner, IsUserOwner
+from users.permissions import IsUserOwner
 from users.serializers import PaymentSerializer, UserSerializer
 
 
