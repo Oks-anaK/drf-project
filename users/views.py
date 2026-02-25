@@ -1,17 +1,22 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
-from rest_framework.generics import (CreateAPIView, DestroyAPIView,
-                                     RetrieveAPIView, UpdateAPIView)
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
-from users.models import Payments, User
+from users.models import Payment, User
 from users.permissions import IsUserOwner
 from users.serializers import PaymentSerializer, UserSerializer
+from users.services import convert_rub_to_dollars, create_stripe_price, create_stripe_session, create_stripe_product
 
 
 class PaymentViewSet(ModelViewSet):
-    queryset = Payments.objects.all()
+    queryset = Payment.objects.all()
     serializer_class = PaymentSerializer
 
     # Добавить фильтры
@@ -19,6 +24,24 @@ class PaymentViewSet(ModelViewSet):
     filterset_fields = ("course", "lesson", "payment_method")
     ordering_fields = "date_payment"
     ordering = "-date_payment"  # По умолчанию сортировка по дате (новые сначала)
+
+    def perform_create(self, serializer):
+        payment = serializer.save(user=self.request.user)
+
+        if payment.course:
+            product_name = payment.course.name
+        elif payment.lesson:
+            product_name = payment.lesson.name
+        else:
+            product_name = "Payment"
+
+        product = create_stripe_product(product_name)
+        amount_in_dollars = convert_rub_to_dollars(payment.amount)
+        price = create_stripe_price(amount_in_dollars, product.id)
+        session_id, payment_link = create_stripe_session(price)
+        payment.stripe_session_id = session_id
+        payment.stripe_payment_url = payment_link
+        payment.save()
 
 
 class UserCreateAPIView(CreateAPIView):

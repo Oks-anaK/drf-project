@@ -59,10 +59,11 @@ class User(AbstractUser):
         verbose_name_plural = "Пользователи"
 
 
-class Payments(models.Model):
+class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ("cash", "Наличные"),
         ("transfer", "Перевод на счет"),
+        ("stripe", "Оплата через Stripe"),
     ]
 
     user = models.ForeignKey(
@@ -73,7 +74,7 @@ class Payments(models.Model):
         help_text="Выберите пользователя.",
     )
     date_payment = models.DateField(
-        verbose_name="Дата оплаты", help_text="Укажите дату оплаты."
+        verbose_name="Дата оплаты", help_text="Укажите дату оплаты.", null=True, blank=True,
     )
     course = models.ForeignKey(
         "materials.Course",
@@ -106,6 +107,18 @@ class Payments(models.Model):
         verbose_name="Способ оплаты",
         help_text="Выберите способ оплаты.",
     )
+    stripe_session_id = models.CharField(
+        max_length=255,
+        verbose_name="ID сессии Stripe",
+        blank=True,
+        null=True,
+    )
+    stripe_payment_url = models.URLField(
+        max_length=500,
+        verbose_name="Ссылка на оплату Stripe",
+        blank=True,
+        null=True,
+    )
 
     def clean(self):
         """Валидация: должно быть заполнено либо course, либо lesson"""
@@ -113,7 +126,7 @@ class Payments(models.Model):
             raise models.ValidationError("Необходимо выбрать либо курс, либо урок.")
         if self.course and self.lesson:
             raise models.ValidationError(
-                "Можно выбрать только курс ИЛИ урок, не оба одновременно."
+                "Можно выбрать только курс или урок, не оба одновременно."
             )
 
     def __str__(self):

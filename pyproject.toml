@@ -6,7 +6,7 @@ authors = [
     {name = "Oksana Konkina",email = "oksanka.808@mail.ru"}
 ]
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = "^3.12"
 dependencies = [
     "django (>=6.0.1,<7.0.0)",
     "djangorestframework (>=3.16.1,<4.0.0)",
@@ -19,7 +19,10 @@ dependencies = [
     "djangorestframework-simplejwt (>=5.5.1,<6.0.0)",
     "ipython (>=9.10.0,<10.0.0)",
     "coverage (>=7.13.4,<8.0.0)",
-    "flake8 (>=7.3.0,<8.0.0)"
+    "flake8 (>=7.3.0,<8.0.0)",
+    "drf-yasg (>=1.21.15,<2.0.0)",
+    "stripe (>=14.3.0,<15.0.0)",
+    "forex-python (>=1.9.2,<2.0.0)"
 ]
 
 
