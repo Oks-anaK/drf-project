@@ -12,7 +12,7 @@ from rest_framework.viewsets import ModelViewSet
 from users.models import Payment, User
 from users.permissions import IsUserOwner
 from users.serializers import PaymentSerializer, UserSerializer
-from users.services import convert_rub_to_dollars, create_stripe_price, create_stripe_session, create_stripe_product
+from users.services import create_stripe_price, create_stripe_session, create_stripe_product
 
 
 class PaymentViewSet(ModelViewSet):
@@ -36,8 +36,7 @@ class PaymentViewSet(ModelViewSet):
             product_name = "Payment"
 
         product = create_stripe_product(product_name)
-        amount_in_dollars = convert_rub_to_dollars(payment.amount)
-        price = create_stripe_price(amount_in_dollars, product.id)
+        price = create_stripe_price(payment.amount, product.id)
         session_id, payment_link = create_stripe_session(price)
         payment.stripe_session_id = session_id
         payment.stripe_payment_url = payment_link
