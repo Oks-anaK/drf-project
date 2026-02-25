@@ -74,7 +74,10 @@ class Payment(models.Model):
         help_text="Выберите пользователя.",
     )
     date_payment = models.DateField(
-        verbose_name="Дата оплаты", help_text="Укажите дату оплаты.", null=True, blank=True,
+        verbose_name="Дата оплаты",
+        help_text="Укажите дату оплаты.",
+        null=True,
+        blank=True,
     )
     course = models.ForeignKey(
         "materials.Course",

@@ -1,11 +1,6 @@
-from rest_framework.generics import (
-    CreateAPIView,
-    DestroyAPIView,
-    ListAPIView,
-    RetrieveAPIView,
-    UpdateAPIView,
-    get_object_or_404,
-)
+from rest_framework.generics import (CreateAPIView, DestroyAPIView,
+                                     ListAPIView, RetrieveAPIView,
+                                     UpdateAPIView, get_object_or_404)
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -13,11 +8,8 @@ from rest_framework.viewsets import ModelViewSet
 
 from materials.models import Course, Lesson, Subscription
 from materials.paginators import CustomPagination
-from materials.serializers import (
-    CourseDetailSerializer,
-    CourseSerializer,
-    LessonSerializer,
-)
+from materials.serializers import (CourseDetailSerializer, CourseSerializer,
+                                   LessonSerializer)
 from users.permissions import IsModerator, IsNotModeratorAndOwner, IsOwner
 
 
@@ -29,13 +21,13 @@ class CourseViewSet(ModelViewSet):
     def get_queryset(self):
         """Фильтрация: модераторы видят все, обычные пользователи - только свои курсы."""
         # Проверка для генерации схемы Swagger
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return Course.objects.none()
-        
+
         queryset = super().get_queryset()
         if not self.request.user.is_authenticated:
             return queryset.none()
-        
+
         if self.request.user.groups.filter(name="moderators").exists():
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -80,13 +72,13 @@ class LessonListAPIView(ListAPIView):
     def get_queryset(self):
         """Фильтрация: модераторы видят все, обычные пользователи - только свои уроки."""
         # Проверка для генерации схемы Swagger
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return Lesson.objects.none()
-        
+
         queryset = super().get_queryset()
         if not self.request.user.is_authenticated:
             return queryset.none()
-        
+
         if self.request.user.groups.filter(name="moderators").exists():
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -100,13 +92,13 @@ class LessonRetrieveAPIView(RetrieveAPIView):
     def get_queryset(self):
         """Фильтрация: модераторы видят все, обычные пользователи - только свои уроки."""
         # Проверка для генерации схемы Swagger
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return Lesson.objects.none()
-        
+
         queryset = super().get_queryset()
         if not self.request.user.is_authenticated:
             return queryset.none()
-        
+
         if self.request.user.groups.filter(name="moderators").exists():
             return queryset
         return queryset.filter(owner=self.request.user)
@@ -120,13 +112,13 @@ class LessonUpdateAPIView(UpdateAPIView):
     def get_queryset(self):
         """Фильтрация: модераторы видят все, обычные пользователи - только свои уроки."""
         # Проверка для генерации схемы Swagger
-        if getattr(self, 'swagger_fake_view', False):
+        if getattr(self, "swagger_fake_view", False):
             return Lesson.objects.none()
-        
+
         queryset = super().get_queryset()
         if not self.request.user.is_authenticated:
             return queryset.none()
-        
+
         if self.request.user.groups.filter(name="moderators").exists():
             return queryset
         return queryset.filter(owner=self.request.user)
