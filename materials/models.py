@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import CharField, ForeignKey, ImageField, TextField
+from django.db.models import CharField, DateTimeField, ForeignKey, ImageField, TextField
 
 from users.models import User
 
@@ -30,6 +30,13 @@ class Course(models.Model):
         null=True,
         verbose_name="Владелец",
         help_text="Добавьте владельца курса.",
+    )
+    last_updated = DateTimeField(
+        verbose_name="Последнее обновление",
+        help_text="Дата и время последнего обновления курса.",
+        auto_now=True,
+        null=True,
+        blank=True,
     )
 
     def __str__(self):
