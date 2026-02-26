@@ -1,5 +1,5 @@
-from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      RetrieveAPIView, UpdateAPIView)
@@ -74,19 +74,19 @@ class UserDestroyAPIView(DestroyAPIView):
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     """Кастомный view для логина с обновлением last_login."""
-    
+
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
-        
+
         if response.status_code == 200:
             # Обновляем last_login при успешной аутентификации
-            email = request.data.get('email')
+            email = request.data.get("email")
             if email:
                 try:
                     user = User.objects.get(email=email)
                     user.last_login = timezone.now()
-                    user.save(update_fields=['last_login'])
+                    user.save(update_fields=["last_login"])
                 except User.DoesNotExist:
                     pass
-        
+
         return response

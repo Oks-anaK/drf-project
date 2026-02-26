@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from django.utils import timezone
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
                                      UpdateAPIView, get_object_or_404)
@@ -7,7 +8,6 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
-from django.utils import timezone
 
 from materials.models import Course, Lesson, Subscription
 from materials.paginators import CustomPagination
@@ -57,12 +57,14 @@ class CourseViewSet(ModelViewSet):
 
     def perform_update(self, serializer):
         course = serializer.instance
-        
+
         four_hours_ago = timezone.now() - timedelta(hours=4)
-        should_send_notification = not course.last_updated or course.last_updated < four_hours_ago
-        
+        should_send_notification = (
+            not course.last_updated or course.last_updated < four_hours_ago
+        )
+
         course = serializer.save()
-        
+
         if should_send_notification:
             subscribers = Subscription.objects.filter(course=course)
 
@@ -145,15 +147,15 @@ class LessonUpdateAPIView(UpdateAPIView):
     def perform_update(self, serializer):
         lesson = serializer.save()
         course = lesson.course
-        
+
         four_hours_ago = timezone.now() - timedelta(hours=4)
-        
+
         if not course.last_updated or course.last_updated < four_hours_ago:
             course.last_updated = timezone.now()
-            course.save(update_fields=['last_updated'])
-            
+            course.save(update_fields=["last_updated"])
+
             subscribers = Subscription.objects.filter(course=course)
-            
+
             for subscription in subscribers:
                 if subscription.user and subscription.user.email:
                     send_info_about_updates.delay(subscription.user.email, course.id)

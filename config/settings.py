@@ -163,10 +163,10 @@ CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60
 
 # URL-адрес брокера сообщений
-CELERY_BROKER_URL = os.getenv('LOCATION')
+CELERY_BROKER_URL = os.getenv("LOCATION")
 
 # URL-адрес брокера результатов, также Redis
-CELERY_RESULT_BACKEND = os.getenv('LOCATION')
+CELERY_RESULT_BACKEND = os.getenv("LOCATION")
 
 # Email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"

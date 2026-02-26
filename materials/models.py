@@ -1,5 +1,6 @@
 from django.db import models
-from django.db.models import CharField, DateTimeField, ForeignKey, ImageField, TextField
+from django.db.models import (CharField, DateTimeField, ForeignKey, ImageField,
+                              TextField)
 
 from users.models import User
 
