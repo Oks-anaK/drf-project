@@ -1,5 +1,7 @@
 from django.db import models
-from django.db.models import CharField, ImageField, TextField
+from django.db.models import CharField, ForeignKey, ImageField, TextField
+
+from users.models import User
 
 
 class Course(models.Model):
@@ -20,6 +22,14 @@ class Course(models.Model):
         help_text="Добавьте превью курса.",
         blank=True,
         null=True,
+    )
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Владелец",
+        help_text="Добавьте владельца курса.",
     )
 
     def __str__(self):
@@ -57,7 +67,19 @@ class Lesson(models.Model):
         null=True,
     )
     course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, verbose_name="Курс", help_text="Введите курс."
+        Course,
+        on_delete=models.CASCADE,
+        verbose_name="Курс",
+        help_text="Введите курс.",
+        related_name="lessons",
+    )
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Владелец",
+        help_text="Добавьте владельца урока.",
     )
 
     def __str__(self):
@@ -66,3 +88,24 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
+
+
+class Subscription(models.Model):
+    user = ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Пользователь",
+        help_text="Добавьте пользователя, подписанного на обновления курса.",
+        related_name="sub_user",
+    )
+    course = ForeignKey(
+        Course,
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+        verbose_name="Курс",
+        help_text="Добавьте курс, на обновления которого подписан пользователь.",
+        related_name="sub_course",
+    )
