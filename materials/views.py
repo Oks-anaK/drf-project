@@ -56,11 +56,14 @@ class CourseViewSet(ModelViewSet):
         return super().get_permissions()
 
     def perform_update(self, serializer):
-        course = serializer.save()
+        course = serializer.instance
         
         four_hours_ago = timezone.now() - timedelta(hours=4)
+        should_send_notification = not course.last_updated or course.last_updated < four_hours_ago
         
-        if not course.last_updated or course.last_updated < four_hours_ago:
+        course = serializer.save()
+        
+        if should_send_notification:
             subscribers = Subscription.objects.filter(course=course)
 
             for subscription in subscribers:

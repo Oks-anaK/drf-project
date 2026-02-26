@@ -6,8 +6,6 @@ from config import settings
 
 @shared_task
 def send_info_about_updates(email, course_id):
-    """Отправляет сообщение о выходе обновлений пользователям, подписанным на этот курс."""
-
     course = Course.objects.get(id=course_id)
 
     send_mail(
