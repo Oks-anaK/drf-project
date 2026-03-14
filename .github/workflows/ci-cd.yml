@@ -38,10 +38,7 @@ jobs:
       # Шаг 5: Запустить тесты
       - name: Run tests
         run: |
-          # Если используешь pytest:
-          poetry run pytest
-          # ИЛИ если стандартные Django-тесты:
-          # poetry run python manage.py test
+          poetry run python manage.py test
 
   # Job 2: Деплой на сервер (запускается ТОЛЬКО после успешных тестов)
   deploy:
