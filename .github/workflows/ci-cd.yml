@@ -37,6 +37,12 @@ jobs:
 
       # Шаг 5: Запустить тесты
       - name: Run tests
+        env:
+          SECRET_KEY: test-secret-key-for-ci-cd
+          DEBUG: '0'
+          ALLOWED_HOSTS: localhost,127.0.0.1
+          # SQLite для тестов (не требует настройки)
+          DATABASE_URL: sqlite:///test.db
         run: |
           poetry run python manage.py test
 
