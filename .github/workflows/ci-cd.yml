@@ -61,41 +61,38 @@ jobs:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
-          # IP сервера (из секрета)
           host: ${{ secrets.SSH_HOST }}
-
-          # Пользователь на сервере (из секрета)
           username: ${{ secrets.SSH_USER }}
-
-          # Приватный SSH-ключ (из секрета)
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-
-          # Порт SSH (из секрета, или 22 по умолчанию)
           port: ${{ secrets.SSH_PORT || 22 }}
-
-          # Команды, которые выполнятся на сервере
           script: |
             # Перейти в папку проекта
             cd ~/apps/drf-project
-            
-            # Переключиться на нужную ветку (если деплоишь с develop)
+
+            # Сохранить локальные изменения (если есть)
+            git stash
+
+            # Переключиться на нужную ветку
             git checkout develop
-            
+
             # Подтянуть свежий код с GitHub
             git pull
-            
+
+            # Добавить Poetry в PATH
+            export PATH="$HOME/.local/bin:$PATH"
+
             # Обновить зависимости (если изменились)
             poetry config virtualenvs.in-project true
             poetry install --only main --no-root
-            
+
             # Применить миграции БД
             poetry run python manage.py migrate
-            
+
             # Собрать статические файлы
             poetry run python manage.py collectstatic --noinput
-            
-            # Перезапустить Gunicorn (чтобы применить изменения)
+
+            # Перезапустить Gunicorn (sudo теперь работает без пароля)
             sudo systemctl restart drf-project
-            
-            # Перезагрузить Nginx (на всякий случай)
+
+            # Перезагрузить Nginx
             sudo systemctl reload nginx
