@@ -1,0 +1,98 @@
+name: CI/CD
+
+# Когда запускать workflow
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop  # рабочая ветка
+
+jobs:
+  # Job 1: Запуск тестов
+  tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Шаг 1: Получить код из репозитория
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Шаг 2: Установить Python
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'   # подставь версию Python
+
+      # Шаг 3: Установить Poetry
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      # Шаг 4: Установить зависимости проекта
+      - name: Install dependencies
+        run: |
+          poetry install --only main --no-root
+
+      # Шаг 5: Запустить тесты
+      - name: Run tests
+        run: |
+          # Если используешь pytest:
+          poetry run pytest
+          # ИЛИ если стандартные Django-тесты:
+          # poetry run python manage.py test
+
+  # Job 2: Деплой на сервер (запускается ТОЛЬКО после успешных тестов)
+  deploy:
+    runs-on: ubuntu-latest
+
+    # Запускать только если tests прошли успешно
+    needs: tests
+
+    # Запускать только для веток main/master/develop
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master' || github.ref == 'refs/heads/develop'
+
+    steps:
+      # Шаг 1: Подключиться к серверу по SSH и выполнить команды деплоя
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          # IP сервера (из секрета)
+          host: ${{ secrets.SSH_HOST }}
+
+          # Пользователь на сервере (из секрета)
+          username: ${{ secrets.SSH_USER }}
+
+          # Приватный SSH-ключ (из секрета)
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+          # Порт SSH (из секрета, или 22 по умолчанию)
+          port: ${{ secrets.SSH_PORT || 22 }}
+
+          # Команды, которые выполнятся на сервере
+          script: |
+            # Перейти в папку проекта
+            cd ~/apps/drf-project
+            
+            # Переключиться на нужную ветку (если деплоишь с develop)
+            git checkout develop
+            
+            # Подтянуть свежий код с GitHub
+            git pull
+            
+            # Обновить зависимости (если изменились)
+            poetry config virtualenvs.in-project true
+            poetry install --only main --no-root
+            
+            # Применить миграции БД
+            poetry run python manage.py migrate
+            
+            # Собрать статические файлы
+            poetry run python manage.py collectstatic --noinput
+            
+            # Перезапустить Gunicorn (чтобы применить изменения)
+            sudo systemctl restart drf-project
+            
+            # Перезагрузить Nginx (на всякий случай)
+            sudo systemctl reload nginx
