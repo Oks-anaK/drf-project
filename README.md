@@ -1,6 +1,6 @@
-# PythonProject13
+# Online Courses Platform API
 
-Django проект с использованием Docker Compose для локальной разработки и автоматическим деплоем на удаленный сервер через GitHub Actions.
+REST API на Django для онлайн-курсов (курсы, уроки, подписки, платежи): Docker Compose для локальной разработки и автоматический деплой на сервер через GitHub Actions.
 
 ## Требования
 
@@ -13,8 +13,8 @@ Django проект с использованием Docker Compose для лок
 
 1. Клонируйте репозиторий:
 ```bash
-git clone https://github.com/Oks-anaK/drf-project.git
-cd drf-project
+git clone https://github.com/Oks-anaK/online-courses-api.git
+cd online-courses-api
 ```
 
 2. Создайте `.env` на основе `.env.example`:
@@ -100,8 +100,8 @@ source ~/.bashrc
 ```bash
 mkdir -p ~/apps
 cd ~/apps
-git clone https://github.com/Oks-anaK/drf-project.git
-cd drf-project
+git clone https://github.com/Oks-anaK/online-courses-api.git
+cd online-courses-api
 git checkout develop
 ```
 
@@ -122,7 +122,7 @@ sudo -u postgres psql
 
 9. **Создание .env на сервере:**
 ```bash
-nano ~/apps/drf-project/.env
+nano ~/apps/online-courses-api/.env
 ```
 
 **Важные отличия от Docker:**
@@ -140,21 +140,21 @@ poetry run python manage.py collectstatic --noinput
 
 11. **Gunicorn + Systemd:**
 ```bash
-sudo nano /etc/systemd/system/drf-project.service
+sudo nano /etc/systemd/system/online-courses-api.service
 ```
 
 ```ini
 [Unit]
-Description=Gunicorn via Poetry for drf-project
+Description=Gunicorn via Poetry for online-courses-api
 After=network.target
 
 [Service]
 User=deploy
 Group=www-data
-WorkingDirectory=/home/deploy/apps/drf-project
-EnvironmentFile=/home/deploy/apps/drf-project/.env
+WorkingDirectory=/home/deploy/apps/online-courses-api
+EnvironmentFile=/home/deploy/apps/online-courses-api/.env
 
-ExecStart=/home/deploy/apps/drf-project/.venv/bin/gunicorn config.wsgi:application \
+ExecStart=/home/deploy/apps/online-courses-api/.venv/bin/gunicorn config.wsgi:application \
   --bind 127.0.0.1:8000 \
   --workers 3 \
   --timeout 60
@@ -168,13 +168,13 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable drf-project
-sudo systemctl start drf-project
+sudo systemctl enable online-courses-api
+sudo systemctl start online-courses-api
 ```
 
 12. **Nginx:**
 ```bash
-sudo nano /etc/nginx/sites-available/drf-project
+sudo nano /etc/nginx/sites-available/online-courses-api
 ```
 
 ```nginx
@@ -183,11 +183,11 @@ server {
     server_name SERVER_IP yourdomain.com;
 
     location /static/ {
-        alias /home/deploy/apps/drf-project/static/;
+        alias /home/deploy/apps/online-courses-api/static/;
     }
 
     location /media/ {
-        alias /home/deploy/apps/drf-project/media/;
+        alias /home/deploy/apps/online-courses-api/media/;
     }
 
     location / {
@@ -201,7 +201,7 @@ server {
 ```
 
 ```bash
-sudo ln -s /etc/nginx/sites-available/drf-project /etc/nginx/sites-enabled/drf-project
+sudo ln -s /etc/nginx/sites-available/online-courses-api /etc/nginx/sites-enabled/online-courses-api
 sudo nginx -t
 sudo systemctl reload nginx
 ```
@@ -209,14 +209,14 @@ sudo systemctl reload nginx
 13. **Права доступа:**
 ```bash
 sudo chmod 755 /home/deploy
-sudo chown -R deploy:www-data /home/deploy/apps/drf-project/static
-sudo chmod -R 755 /home/deploy/apps/drf-project/static
+sudo chown -R deploy:www-data /home/deploy/apps/online-courses-api/static
+sudo chmod -R 755 /home/deploy/apps/online-courses-api/static
 ```
 
 14. **Sudo без пароля для deploy:**
 ```bash
 sudo visudo
-# Добавьте: deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart drf-project, /usr/bin/systemctl reload nginx
+# Добавьте: deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart online-courses-api, /usr/bin/systemctl reload nginx
 ```
 
 15. **SSH-ключи для GitHub Actions:**
@@ -266,13 +266,13 @@ Workflow файл: `.github/workflows/ci-cd.yml`
 
 ```bash
 ssh deploy@SERVER_IP
-cd ~/apps/drf-project
+cd ~/apps/online-courses-api
 git pull
 export PATH="$HOME/.local/bin:$PATH"
 poetry install --only main --no-root
 poetry run python manage.py migrate
 poetry run python manage.py collectstatic --noinput
-sudo systemctl restart drf-project
+sudo systemctl restart online-courses-api
 ```
 
 ---
@@ -294,7 +294,7 @@ poetry run python manage.py test
 ## Структура проекта
 
 ```
-PythonProject13/
+online-courses-api/
 ├── config/              # Настройки Django
 ├── users/               # Приложение пользователей
 ├── materials/           # Приложение материалов
