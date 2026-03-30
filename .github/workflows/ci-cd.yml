@@ -67,7 +67,7 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script: |
             # Перейти в папку проекта
-            cd ~/apps/drf-project
+            cd ~/apps/online-courses-api
 
             # Сохранить локальные изменения (если есть)
             git stash
@@ -92,7 +92,7 @@ jobs:
             poetry run python manage.py collectstatic --noinput
 
             # Перезапустить Gunicorn (sudo теперь работает без пароля)
-            sudo systemctl restart drf-project
+            sudo systemctl restart online-courses-api
 
             # Перезагрузить Nginx
             sudo systemctl reload nginx
